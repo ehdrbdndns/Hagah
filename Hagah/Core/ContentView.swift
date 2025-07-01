@@ -9,8 +9,24 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @StateObject private var authManager: AuthenticationManager
+    
+    init() {
+        let repository = MockAuthenticationRepository()
+        let interactor = SignUpInteractor(authRepository: repository)
+        _authManager = StateObject(wrappedValue: AuthenticationManager(signUpInteractor: interactor))
+    }
+    
     var body: some View {
-       Text("화이팅")
+        Group {
+            if let user = authManager.currentUser {
+                MainView(user: user)
+                    .environmentObject(authManager)
+            } else {
+                SignUpView()
+                    .environmentObject(authManager)
+            }
+        }
     }
 }
 
